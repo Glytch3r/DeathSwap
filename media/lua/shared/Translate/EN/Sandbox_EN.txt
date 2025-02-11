@@ -1,0 +1,15 @@
+Sandbox_EN = {
+
+	Sandbox_DeathSwap = "Death Swap Mod",
+
+
+	Sandbox_DeathSwap_Blacklist = "Blacklist",
+	Sandbox_DeathSwap_Blacklist_tooltip = "Player listed will not be teleported. Use ; as delimiter",
+
+	Sandbox_DeathSwap_playSfx = "Sound Effects",
+	Sandbox_DeathSwap_playSfx_tooltip = "Plays an audio During Death Swap",
+
+	Sandbox_DeathSwap_Countdown = "Default Warning Countdown",
+	Sandbox_DeathSwap_Countdown_tooltip = "Seconds before Death Swap. 0 to disable feature",
+
+}

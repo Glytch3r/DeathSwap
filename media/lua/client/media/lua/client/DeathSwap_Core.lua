@@ -51,15 +51,14 @@ function DeathSwap.prepDeathSwap(user, targ)
         z = targ.z,
     })
 end
-
 function DeathSwap.getRandJoke(int)
     local randJoke = {
-        [1]="YOU ARE ATTEMPTING TO DO THE IMPOSSIBLE! ",
-        [2]="YOU TELEPORTED TO YOUR OWN POSITION! ",
-        [3]="YOU HAVE NO FRIENDS! ",
-        [4]="NOT ENOUGH PLAYERS TO TELEPORT! ",
+        [1]=getText("IGUI_deathswap_joke1") or "YOU ARE ATTEMPTING TO DO THE IMPOSSIBLE!"
+        [2]=getText("IGUI_deathswap_joke2") or "YOU TELEPORTED TO YOUR OWN POSITION!"
+        [3]=getText("IGUI_deathswap_joke3") or "YOU HAVE NO FRIENDS!"
+        [4]=getText("IGUI_deathswap_joke4") or "NOT ENOUGH PLAYERS TO TELEPORT!"
     }
-    return randJoke[int] or "NOT ENOUGH PLAYERS TO TELEPORT! "
+    return randJoke[int] or randJoke[1]
 end
 
 function DeathSwap.playSfx(pl)
@@ -113,7 +112,9 @@ function DeathSwap.doDeathSwap(counter) -- /ds 0 to 60
         HaloTextHelper.addTextWithArrow(getPlayer(), tostring(joke), false,255,0,0)
         return
     else
-        SendCommandToServer(string.format("/servermsg \"" .. " Death Swap will soon begin in "  .. "\""))
+        local str = getText("IGUI_deathswap_start") or "Death Swap will soon begin in",
+
+        SendCommandToServer(string.format("/servermsg \"" .. " "..tostring(str).." "  .. "\""))
         timer:Simple(2, function()
             counter = tonumber((math.max(0, math.min(60, tonumber(counter))))) or 10
             local countdownStart = counter or SandboxVars.DeathSwap.Countdown

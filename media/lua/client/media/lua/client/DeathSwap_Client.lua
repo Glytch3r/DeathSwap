@@ -16,7 +16,7 @@
 |                       	Support:    https://ko-fi.com/glytch3r														    	  |
 |_______________________________________________________________________________________________________________________________-]]
 
-
+require "lua_timers"
 --client
 DeathSwap = DeathSwap or {}
 
@@ -36,6 +36,17 @@ Commands.DeathSwap.doDeathSwap = function(args)
             pl:setLy(args.y)
             pl:setLz(args.z)
             DeathSwap.playSfx(pl)
+            local sq = getCell():getOrCreateGridSquare(args.x, args.y, args.z);
+            if sq then
+                local flr =  sq:getFloor()
+                if flr then
+                    flr:setHighlightColor(0.69,0.36, 0.89, 1)
+                    flr:setHighlighted(true)
+                    timer:Simple(3, function()
+                        flr:setHighlighted(false)
+                    end)
+                end
+            end
         end
     end
 end

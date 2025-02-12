@@ -45,26 +45,29 @@ function DeathSwap.chatCmd(cmd)
 
     if pl:isAccessLevel('admin') or isAdmin() then
 
-
         if cmd:match("^/dsAdd%s+") then
             local user = cmd:match("^/dsAdd%s+(%S+)")
             if user then
                 DeathSwap.addUserBlacklist(user)
-                pl:Say(user .. " has been added to the blacklist.")
+                local str = getText("IGUI_deathswap_add") or "has been added to the blacklist"
+                pl:Say(user .. " "..tostring(str))
             end
 
         elseif cmd:match("^/dsDel%s+") then
             local user = cmd:match("^/dsDel%s+(%S+)")
             if user then
                 DeathSwap.delUserBlacklist(user)
-                pl:Say(user .. " has been removed from the blacklist.")
+                local str = getText("IGUI_deathswap_del") or "has been removed from the blacklist"
+                pl:Say(tostring(user) .. " "..tostring(str))
             end
 
         elseif cmd:match("^/dsCheck%s+") then
             local user = cmd:match("^/dsCheck%s+(%S+)")
             if user then
                 local isBlacklisted = DeathSwap.isBlacklisted(user)
-                pl:Say(user .. (isBlacklisted and " is blacklisted." or " is not blacklisted."))
+                local str1 = getText("IGUI_deathswap_is") or "is blacklisted"
+                local str2 = getText("IGUI_deathswap_not") or "is not blacklisted"
+                pl:Say(tostring(user) .." ".. (isBlacklisted and tostring(str1) or tostring(str2)))
             end
 
         elseif cmd:match("^/dsClip%s*$") then
@@ -95,6 +98,7 @@ Events.OnGameStart.Add(function()
 end)
 
 function DeathSwap.dsHelp()
+
     print(DeathSwap.cmdDesc)
     getPlayer():setHaloNote(tostring(DeathSwap.cmdDesc),150,150,250,2500)
 end
@@ -109,7 +113,8 @@ function DeathSwap.dsClip()
         res = res..';'..tostring(user)
     end
     Clipboard.setClipboard(res)
-    getPlayer():setHaloNote("Usernames: saved to clipboard:\n"..tostring(res),150,250,150,900)
+    local str = getText("IGUI_deathswap_clip") or "Usernames saved to clipboard",
+    getPlayer():setHaloNote(tostring(str).."\n"..tostring(res),150,250,150,900)
 end
 
 
@@ -122,6 +127,9 @@ function DeathSwap.dsSave()
 
     local opt3 = SandboxVars.DeathSwap.Countdown
     DeathSwap.saveBlacklist(tostring(opt3))
+    local str = getText("IGUI_deathswap_save") or "Death Swap Blacklist Updated!"
+    getPlayer():setHaloNote(tostring(str), 150,250,150,900)
+
 end
 
 

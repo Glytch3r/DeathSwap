@@ -1,0 +1,14 @@
+IGUI_EN = {
+    IGUI_deathswap_joke1 = "YOU ARE ATTEMPTING TO DO THE IMPOSSIBLE!",
+    IGUI_deathswap_joke2 = "YOU TELEPORTED TO YOUR OWN POSITION!",
+    IGUI_deathswap_joke3 = "YOU HAVE NO FRIENDS!",
+    IGUI_deathswap_joke4 = "NOT ENOUGH PLAYERS TO TELEPORT!",
+    IGUI_deathswap_add  =  "has been added to the blacklist",
+    IGUI_deathswap_del  =  "has been removed from the blacklist",
+    IGUI_deathswap_is   =  "is blacklisted",
+    IGUI_deathswap_not  =  "is not blacklisted",
+    IGUI_deathswap_clip =  "Usernames saved to clipboard",
+    IGUI_deathswap_save =  "Death Swap Blacklist Updated!",
+    IGUI_deathswap_start =  "Death Swap will soon begin in",
+
+}

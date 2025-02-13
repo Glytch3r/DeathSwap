@@ -25,6 +25,7 @@ Commands.DeathSwap = {}
 
 Commands.DeathSwap.doDeathSwap = function(args)
     local pl = getPlayer()
+    DeathSwap.doAnnounce(pl)
     local user = pl:getUsername()
     if user and user == args.user then
         local targ = getPlayerFromUsername(args.targName)
@@ -50,6 +51,26 @@ Commands.DeathSwap.doDeathSwap = function(args)
         end
     end
 end
+
+function DeathSwap.doAnnounce(pl)
+    local intro = getText(IGUI_deathswap_start) or "Death Swap will soon begin in"
+    pl:addLineChatElement(tostring(intro))
+    timer:Simple(2, function()
+        local cd = SandboxVars.DeathSwap.Countdown or 10
+        local i = cd
+        timer:Create("DeathSwapCountdown", 1, tonumber(cd), function()
+            local str = timer:RepsLeft("DeathSwapCountdown")
+
+            pl:addLineChatElement(tostring(str))
+
+        end)
+    end)
+end
+
+
+
+
+
 
 Events.OnServerCommand.Add(function(module, command, args)
 	if Commands[module] and Commands[module][command] then

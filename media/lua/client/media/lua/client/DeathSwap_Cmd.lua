@@ -24,21 +24,18 @@ DeathSwap = DeathSwap or {}
 
 DeathSwap.cmdDesc = [[
 Death Swap:
-[ Chat Commands ]           [ Description ]
-------------------------------------------------------
-/dsHelp               -      Shows Death Swap Commands.
-
-/dsClip               -      Store online players username to Clipboard.
-/dsCheck [username]   -      Checks if user is Blacklisted.
-
-/dsAdd [username]     -      Adds username to Blacklist.
-/dsDel [username]     -      Remove username from Blacklist.
-
-/ds                   -      Triggers Default Death Swap (sandbox option).
-
-/dsSave               -      Manual Sync (If you edit sandbox option via panel).
-------------------------------------------------------
+[ Chat Commands ]       [ Description ]
+___________________________________________________
+/dsHelp              -   Shows Death Swap Commands.
+/dsClip              -   Store online players' usernames to Clipboard.
+/dsCheck [username]  -   Checks if user is Blacklisted.
+/dsAdd [username]    -   Adds username to Blacklist.
+/dsDel [username]    -   Removes username from Blacklist.
+/ds                  -   Triggers Default Death Swap (sandbox option).
+/dsSave              -   Manual Sync (If you edit sandbox option via panel).
+___________________________________________________
 ]]
+
 
 function DeathSwap.chatCmd(cmd)
     local pl = getPlayer()

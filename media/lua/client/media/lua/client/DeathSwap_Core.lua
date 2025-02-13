@@ -26,9 +26,7 @@
 █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████--]]
 
 require "lua_timers"
-
 DeathSwap = DeathSwap or {}
-
 
 function DeathSwap.shuffle(tbl)
     local shuffled = {}
@@ -51,12 +49,13 @@ function DeathSwap.prepDeathSwap(user, targ)
         z = targ.z,
     })
 end
+
 function DeathSwap.getRandJoke(int)
     local randJoke = {
-        [1]=getText("IGUI_deathswap_joke1") or "YOU ARE ATTEMPTING TO DO THE IMPOSSIBLE!"
-        [2]=getText("IGUI_deathswap_joke2") or "YOU TELEPORTED TO YOUR OWN POSITION!"
-        [3]=getText("IGUI_deathswap_joke3") or "YOU HAVE NO FRIENDS!"
-        [4]=getText("IGUI_deathswap_joke4") or "NOT ENOUGH PLAYERS TO TELEPORT!"
+        [1] = getText("IGUI_deathswap_joke1") or "YOU ARE ATTEMPTING TO DO THE IMPOSSIBLE!",
+        [2] = getText("IGUI_deathswap_joke2") or "YOU TELEPORTED TO YOUR OWN POSITION!",
+        [3] = getText("IGUI_deathswap_joke3") or "YOU HAVE NO FRIENDS!",
+        [4] = getText("IGUI_deathswap_joke4") or "NOT ENOUGH PLAYERS TO TELEPORT!",
     }
     return randJoke[int] or randJoke[1]
 end
@@ -66,13 +65,16 @@ function DeathSwap.playSfx(pl)
     if shouldPlaySfx then
         pl = pl or getPlayer()
         pl:playSoundLocal("TrapTimerExpired")
-        timer:Simple(1, function() pl:playSoundLocal("HitBarricadeMetal") end)
+        timer:Simple(2, function()
+            pl:playSoundLocal("HitBarricadeMetal")
+        end)
     end
 end
 
 function DeathSwap.triggerDeathSwap(deathSwapTable)
     DeathSwap.playSfx(getPlayer())
-    SendCommandToServer(string.format("/servermsg \"" .. "Death Swap!"  .. "\""))
+    SendCommandToServer('/servermsg "Death Swap!"')
+
     if #deathSwapTable % 2 == 0 then
         for i = 1, #deathSwapTable, 2 do
             DeathSwap.prepDeathSwap(deathSwapTable[i], deathSwapTable[i + 1])
@@ -90,7 +92,6 @@ function DeathSwap.doDeathSwap(counter) -- /ds 0 to 60
     local olPl = getOnlinePlayers()
     local deathSwapTable = {}
 
-
     for i = 0, olPl:size() - 1 do
         local user = olPl:get(i):getUsername()
         if user and not DeathSwap.isBlacklisted(user) then
@@ -98,8 +99,8 @@ function DeathSwap.doDeathSwap(counter) -- /ds 0 to 60
             if targ then
                 table.insert(deathSwapTable, {
                     user = user,
-                    x = round(targ:getX()),
-                    y = round(targ:getY()),
+                    x = math.floor(targ:getX() + 0.5),
+                    y = math.floor(targ:getY() + 0.5),
                     z = targ:getZ()
                 })
             end
@@ -107,16 +108,18 @@ function DeathSwap.doDeathSwap(counter) -- /ds 0 to 60
     end
 
     if #deathSwapTable < 2 then
-        local joke = DeathSwap.getRandJoke(ZombRand(1, 5))
-        print(tostring(joke))
-        HaloTextHelper.addTextWithArrow(getPlayer(), tostring(joke), false,255,0,0)
+        local joke = DeathSwap.getRandJoke(ZombRand(1, 4))
+        print(joke)
+        HaloTextHelper.addTextWithArrow(getPlayer(), joke, false, 255, 0, 0)
         return
     else
-        local str = getText("IGUI_deathswap_start") or "Death Swap will soon begin in",
+        local str = getText("IGUI_deathswap_start") or "Death Swap will soon begin in"
+        SendCommandToServer(string.format('/servermsg "%s"', str))
 
-        SendCommandToServer(string.format("/servermsg \"" .. " "..tostring(str).." "  .. "\""))
-        timer:Simple(2, function()
-            counter = tonumber((math.max(0, math.min(60, tonumber(counter))))) or 10
+        Events.OnTick.Add(function()
+            if counter == nil then
+                counter = math.max(0, math.min(60, tonumber(counter) or 10))
+            end
             local countdownStart = counter or SandboxVars.DeathSwap.Countdown
 
             deathSwapTable = DeathSwap.shuffle(deathSwapTable)
@@ -130,7 +133,7 @@ function DeathSwap.doDeathSwap(counter) -- /ds 0 to 60
                     local elapsedTimeSec = math.floor((currentTimestamp - countdownTimestamp) / 1000)
                     local remainingTime = countdownStart - elapsedTimeSec
                     if remainingTime > 0 then
-                        SendCommandToServer(string.format("/servermsg \"" .. tostring(remainingTime)  .. "\""))
+                        SendCommandToServer(string.format('/servermsg "%s"', remainingTime))
                     else
                         DeathSwap.triggerDeathSwap(deathSwapTable)
                         Events.OnTick.Remove(countdown)

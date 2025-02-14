@@ -135,24 +135,33 @@ end
 
 function DeathSwap.doDeathSwap()
     local pl = getPlayer()
-	if pl:isAccessLevel('admin') then
-        local user = pl:getUsername()
-        local timestamp = DeathSwap.getTimeStamp() or ""
-        local msg  = tostring(user).." Triggered Death Swap " .. tostring(DeathSwap.getTimeStamp())
-        ISLogSystem.writeLog(pl, msg)
-        ISLogSystem.sendLog(pl, 'DeathSwap', msg)
+    if not pl then return end
 
-        DeathSwap.sendDeathSwap()
+    local user = pl:getUsername()
+    local timestamp = DeathSwap.getTimeStamp()
+
+    if pl:isAccessLevel("admin") then
+        local participantsData = DeathSwap.getParticipantsData()
+
+        if participantsData then
+            local shuffledData = DeathSwap.doShuffle(participantsData)
+            if shuffledData then
+                DeathSwap.sendDeathSwap(shuffledData)
+            end
+            msg = user .. " Triggered Death Swap " .. timestamp
+        else
+            msg = user .. " Tried to Trigger Death Swap and failed " .. timestamp
+        end
+    else
+        msg = "Non-admin user " .. user .. " tried to trigger Death Swap and failed " .. timestamp
     end
+
+    ISLogSystem.writeLog(pl, msg)
+    ISLogSystem.sendLog(pl, "DeathSwap", msg)
 end
-function DeathSwap.sendDeathSwap()
-    local participantsData = DeathSwap.getParticipantsData()
-    local shuffledData = nil
 
-    if participantsData then
-        shuffledData = DeathSwap.doShuffle(participantsData)
-    end
 
+function DeathSwap.sendDeathSwap(shuffledData)
     local pkt = {}
     if shuffledData then
         for _, p in ipairs(shuffledData) do
@@ -164,8 +173,9 @@ function DeathSwap.sendDeathSwap()
             })
         end
     end
-
-    sendClientCommand("DeathSwap", "doDeathSwap", {pkt = pkt})
+    if isClient() then
+        sendClientCommand("DeathSwap", "doDeathSwap", {pkt = pkt})
+    end
 end
 
 -----------------------            ---------------------------

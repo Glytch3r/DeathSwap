@@ -24,10 +24,10 @@ Commands.DeathSwap = {}
 
 DeathSwap.data = {}
 
-function DeathSwap.triggerDeathSwap()
+function DeathSwap.triggerDeathSwap(user)
     if not DeathSwap.data then return end
     local pl = getPlayer()
-    local user = pl:getUsername()
+    user = user or pl:getUsername()
     for _, p in ipairs(DeathSwap.data) do
         if p.username == user then
             pl:setX(p.x)
@@ -52,7 +52,7 @@ function DeathSwap.doAnnounce(pl)
     timer:Simple(2, function()
         local cd = SandboxVars.DeathSwap.Countdown or 10
         timer:Create("DeathSwapCountdown", 1, cd, function()
-            local str = timer:RepsLeft("DeathSwapCountdown")
+            local str = tostring(timer:RepsLeft("DeathSwapCountdown"))
             pl:addLineChatElement(str)
 
             if str == "1" then

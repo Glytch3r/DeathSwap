@@ -47,7 +47,7 @@ function DeathSwap.chatCmd(cmd)
             if user then
                 DeathSwap.addUserBlacklist(user)
                 local str = getText("IGUI_deathswap_add") or "has been added to the blacklist"
-                pl:Say(user .. " "..tostring(str))
+                pl:Say(tostring(user) .. " "..tostring(str))
             end
 
         elseif cmd:match("^/dsDel%s+") then
@@ -81,14 +81,21 @@ end
 
 Events.OnGameStart.Add(function()
     LuaEventManager.AddEvent("OnChatCmd")
+
     local hook = ISChat.logChatCommand
-    function ISChat:logChatCommand(cmd)
-        if luautils.stringStarts(cmd, "/ds") then
-            triggerEvent("OnChatCmd", cmd)
-        else
-            hook(self, cmd)
+
+    function ISChat:logChatCommand(command)
+        if command and command ~= "" then
+            if luautils.stringStarts(command, "/ds") then
+                triggerEvent("OnChatCmd", command)
+            end
+        end
+
+        if originalLogChatCommand then
+            hook(self, command)
         end
     end
+
     Events.OnChatCmd.Add(DeathSwap.chatCmd)
 end)
 

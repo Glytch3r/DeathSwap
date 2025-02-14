@@ -28,17 +28,22 @@ function DeathSwap.triggerDeathSwap(user)
     if not DeathSwap.data then return end
     local pl = getPlayer()
     user = user or pl:getUsername()
-    for _, p in ipairs(DeathSwap.data) do
-        if p.username == user then
-            pl:setX(p.x)
-            pl:setY(p.y)
-            pl:setZ(p.z)
-            pl:setLx(p.x)
-            pl:setLy(p.y)
-            pl:setLz(p.z)
-            print("DeathSwap: " .. user .. " teleported to X: " .. p.x .. ", Y: " .. p.y .. ", Z: " .. p.z)
-            DeathSwap.playSfx(pl)
-            break
+    if user and DeathSwap.isBlacklisted(user) then
+        local str = getText("IGUI_deathswap_noTP") or "You are Blacklisted from DeathSwap"
+        pl:addLineChatElement(str)
+    else
+        for _, p in ipairs(DeathSwap.data) do
+            if p.username == user then
+                pl:setX(p.x)
+                pl:setY(p.y)
+                pl:setZ(p.z)
+                pl:setLx(p.x)
+                pl:setLy(p.y)
+                pl:setLz(p.z)
+                print("DeathSwap: " .. user .. " teleported to X: " .. p.x .. ", Y: " .. p.y .. ", Z: " .. p.z)
+                DeathSwap.playSfx(pl)
+                break
+            end
         end
     end
     DeathSwap.data = {}

@@ -9,6 +9,6 @@ IGUI_EN = {
     IGUI_deathswap_not  =  "is not blacklisted",
     IGUI_deathswap_clip =  "Usernames saved to clipboard",
     IGUI_deathswap_save =  "Death Swap Blacklist Updated!",
-    IGUI_deathswap_start =  "Death Swap will soon begin in",
+    IGUI_deathswap_start =  "Death Swap will soon begin",
 
 }

@@ -18,34 +18,21 @@
 |_______________________________________________________________________________________________________________________________-]]
 
 --server
-if isClient() then return; end
+if isClient() then return end
 
-local Commands = {};
-Commands.DeathSwap = {};
+local Commands = {}
+Commands.DeathSwap = {}
 
-Commands.DeathSwap.doDeathSwap = function(player, args)
-    --local playerId = player:getOnlineID();
-    sendServerCommand("DeathSwap", "doDeathSwap", {
-        --id = playerId,
-        targName = args.targName,
-        user = args.user,
-        x = args.x,
-        y = args.y,
-        z = args.z,
-    })
+Commands.DeathSwap.doDeathSwap = function(_, args)
+    sendServerCommand("DeathSwap", "doDeathSwap", { pkt = args.pkt })
 end
 
-Commands.DeathSwap.doAnnounce = function(player, args)
-    local playerId = player:getOnlineID();
-    sendServerCommand('DeathSwap', 'doAnnounce', {})
-end
 
 Events.OnClientCommand.Add(function(module, command, player, args)
-	if Commands[module] and Commands[module][command] then
-	    Commands[module][command](player, args)
-	end
+    if Commands[module] and Commands[module][command] then
+        Commands[module][command](player, args)
+    end
 end)
-
 --[[_____________________________________________________________________________________________________________________________
    ░▒▓██████▓▒░    ░▒▓████████▓▒░    ░▒▓█▓▒░         ░▒▓█▓▒░      ░▒▓██████▓▒░   ░▒▓█▓▒░ ░▒▓█▓▒░  ░▒▓███████▓▒░    ░▒▓█▓▒░  ░▒█▒░
   ░▒▓█▓▒░░▒▓█▓▒░   ░▒▓█▓▒░           ░▒▓█▓▒░         ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░ ░▒▓█▓▒░  ▒▓░    ░▒▓█▓▒░   ░▒▓█▓▒░  ░▒█▒░

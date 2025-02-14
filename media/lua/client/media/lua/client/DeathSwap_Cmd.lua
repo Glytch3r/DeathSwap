@@ -82,12 +82,10 @@ end
 Events.OnGameStart.Add(function()
     LuaEventManager.AddEvent("OnChatCmd")
     local hook = ISChat.logChatCommand
-
     function ISChat:logChatCommand(cmd)
         if luautils.stringStarts(cmd, "/ds") then
-            DeathSwap.chatCmd(cmd)
-        else
             triggerEvent("OnChatCmd", cmd)
+        else
             hook(self, cmd)
         end
     end
@@ -95,7 +93,6 @@ Events.OnGameStart.Add(function()
 end)
 
 function DeathSwap.dsHelp()
-
     print(DeathSwap.cmdDesc)
     getPlayer():setHaloNote(tostring(DeathSwap.cmdDesc),150,150,250,2500)
 end

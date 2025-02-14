@@ -28,37 +28,18 @@
 require "lua_timers"
 DeathSwap = DeathSwap or {}
 
-function DeathSwap.shuffle(tbl)
-    local shuffled = {}
-    for i, v in ipairs(tbl) do
-        shuffled[i] = v
-    end
-    for i = #shuffled, 2, -1 do
-        local j = ZombRand(i) + 1
-        shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
-    end
-    return shuffled
-end
 
-function DeathSwap.prepDeathSwap(user, targ)
-    sendClientCommand('DeathSwap', 'doDeathSwap', {
-        targName = targ.user,
-        user = user.user,
-        x = targ.x,
-        y = targ.y,
-        z = targ.z,
-    })
-end
 
 function DeathSwap.getRandJoke(int)
     local randJoke = {
         [1] = getText("IGUI_deathswap_joke1") or "YOU ARE ATTEMPTING TO DO THE IMPOSSIBLE!",
         [2] = getText("IGUI_deathswap_joke2") or "YOU TELEPORTED TO YOUR OWN POSITION!",
         [3] = getText("IGUI_deathswap_joke3") or "YOU HAVE NO FRIENDS!",
-        [4] = getText("IGUI_deathswap_joke4") or "NOT ENOUGH PLAYERS TO TELEPORT!",
+        [4] = getText("IGUI_deathswap_joke4") or "NOT ENOUGH PLAYERS TO TELEPORT!"
     }
     return randJoke[int] or randJoke[1]
 end
+
 
 function DeathSwap.playSfx(pl)
     local shouldPlaySfx = SandboxVars.DeathSwap.playSfx or true
@@ -71,76 +52,120 @@ function DeathSwap.playSfx(pl)
     end
 end
 
-function DeathSwap.triggerDeathSwap(deathSwapTable)
-    DeathSwap.playSfx(getPlayer())
-    SendCommandToServer('/servermsg "Death Swap!"')
 
-    if #deathSwapTable % 2 == 0 then
-        for i = 1, #deathSwapTable, 2 do
-            DeathSwap.prepDeathSwap(deathSwapTable[i], deathSwapTable[i + 1])
-            DeathSwap.prepDeathSwap(deathSwapTable[i + 1], deathSwapTable[i])
-        end
-    else
-        for i = 1, #deathSwapTable do
-            local target = deathSwapTable[(i % #deathSwapTable) + 1]
-            DeathSwap.prepDeathSwap(deathSwapTable[i], target)
-        end
-    end
-end
 
-function DeathSwap.doDeathSwap(counter) -- /ds 0 to 60
+-----------------------            ---------------------------
+
+function DeathSwap.getParticipantsData()
     local olPl = getOnlinePlayers()
-    local deathSwapTable = {}
+    local participants = {}
 
     for i = 0, olPl:size() - 1 do
         local user = olPl:get(i):getUsername()
         if user and not DeathSwap.isBlacklisted(user) then
             local targ = getPlayerFromUsername(user)
             if targ then
-                table.insert(deathSwapTable, {
-                    user = user,
-                    x = math.floor(targ:getX() + 0.5),
-                    y = math.floor(targ:getY() + 0.5),
+                table.insert(participants, {
+                    username = user,
+                    x = round(targ:getX()),
+                    y = round(targ:getY()),
                     z = targ:getZ()
                 })
+                if (getCore():getDebug() and isAdmin()) then
+                    print(user)
+                end
             end
         end
     end
 
-    if #deathSwapTable < 2 then
-        local joke = DeathSwap.getRandJoke(ZombRand(1, 4))
-        print(joke)
+    if #participants < 2 then
+        local joke = DeathSwap.getRandJoke(ZombRand(1, 5))
         HaloTextHelper.addTextWithArrow(getPlayer(), joke, false, 255, 0, 0)
-        return
-    else
-        local str = getText("IGUI_deathswap_start") or "Death Swap will soon begin in"
-        SendCommandToServer(string.format('/servermsg "%s"', str))
+        return nil
+    end
 
-        Events.OnTick.Add(function()
-            if counter == nil then
-                counter = math.max(0, math.min(60, tonumber(counter) or 10))
+    return participants
+end
+
+function DeathSwap.doShuffle(tab)
+    if not tab then return end
+    local function hasSameIndices(indices)
+        for i, v in ipairs(indices) do
+            if i == v then
+                return true
             end
-            local countdownStart = counter or SandboxVars.DeathSwap.Countdown
+        end
+        return false
+    end
 
-            deathSwapTable = DeathSwap.shuffle(deathSwapTable)
+    local n = #tab
+    local indices = {}
 
-            if countdownStart == 0 then
-                DeathSwap.triggerDeathSwap(deathSwapTable)
-            else
-                local countdownTimestamp = getTimestampMs()
-                local function countdown()
-                    local currentTimestamp = getTimestampMs()
-                    local elapsedTimeSec = math.floor((currentTimestamp - countdownTimestamp) / 1000)
-                    local remainingTime = countdownStart - elapsedTimeSec
-                    if remainingTime > 0 then
-                        SendCommandToServer(string.format('/servermsg "%s"', remainingTime))
-                    else
-                        DeathSwap.triggerDeathSwap(deathSwapTable)
-                        Events.OnTick.Remove(countdown)
-                    end
-                end
-                Events.OnTick.Add(countdown)
-            end
-        end)
+    for i = 1, n do
+        indices[i] = i
+    end
+
+    repeat
+        for i = n, 2, -1 do
+            local j = ZombRand(i) + 1
+            indices[i], indices[j] = indices[j], indices[i]
+        end
+    until not hasSameIndices(indices)
+
+    local shuffledTab = {}
+    for i = 1, n do
+        shuffledTab[i] = {
+            username = tab[i].username,
+            x = tab[indices[i]].x,
+            y = tab[indices[i]].y,
+            z = tab[indices[i]].z
+        }
+    end
+
+    return shuffledTab
+end
+
+function DeathSwap.getTimeStamp()
+    local dateTable = os.date("*t")
+    local timestamp = string.format("%04d%02d%02d%02d%02d%02d",
+        dateTable.year, dateTable.month, dateTable.day,
+        dateTable.hour, dateTable.min, dateTable.sec)
+    return timestamp
+end
+
+function DeathSwap.doDeathSwap()
+    local pl = getPlayer()
+	if pl:isAccessLevel('admin') then
+        local user = pl:getUsername()
+        local timestamp = DeathSwap.getTimeStamp() or ""
+        local msg  = tostring(user).." Triggered Death Swap " .. tostring(DeathSwap.getTimeStamp())
+        ISLogSystem.writeLog(pl, msg)
+        ISLogSystem.sendLog(pl, 'DeathSwap', msg)
+
+        DeathSwap.sendDeathSwap()
     end
 end
+function DeathSwap.sendDeathSwap()
+    local participantsData = DeathSwap.getParticipantsData()
+    local shuffledData = nil
+
+    if participantsData then
+        shuffledData = DeathSwap.doShuffle(participantsData)
+    end
+
+    local pkt = {}
+    if shuffledData then
+        for _, p in ipairs(shuffledData) do
+            table.insert(pkt, {
+                username = p.username,
+                x = p.x,
+                y = p.y,
+                z = p.z
+            })
+        end
+    end
+
+    sendClientCommand("DeathSwap", "doDeathSwap", {pkt = pkt})
+end
+
+-----------------------            ---------------------------

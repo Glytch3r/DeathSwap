@@ -19,64 +19,67 @@
 require "lua_timers"
 --client
 DeathSwap = DeathSwap or {}
-
 local Commands = {}
 Commands.DeathSwap = {}
 
-Commands.DeathSwap.doDeathSwap = function(args)
+DeathSwap.data = {}
+
+function DeathSwap.triggerDeathSwap()
+    if not DeathSwap.data then return end
     local pl = getPlayer()
-    DeathSwap.doAnnounce(pl)
     local user = pl:getUsername()
-    if user and user == args.user then
-        local targ = getPlayerFromUsername(args.targName)
-        if targ then
-            pl:setX(args.x)
-            pl:setY(args.y)
-            pl:setZ(args.z)
-            pl:setLx(args.x)
-            pl:setLy(args.y)
-            pl:setLz(args.z)
+    for _, p in ipairs(DeathSwap.data) do
+        if p.username == user then
+            pl:setX(p.x)
+            pl:setY(p.y)
+            pl:setZ(p.z)
+            pl:setLx(p.x)
+            pl:setLy(p.y)
+            pl:setLz(p.z)
+            print("DeathSwap: " .. user .. " teleported to X: " .. p.x .. ", Y: " .. p.y .. ", Z: " .. p.z)
             DeathSwap.playSfx(pl)
-            local sq = getCell():getOrCreateGridSquare(args.x, args.y, args.z);
-            if sq then
-                local flr =  sq:getFloor()
-                if flr then
-                    flr:setHighlightColor(0.69,0.36, 0.89, 1)
-                    flr:setHighlighted(true)
-                    timer:Simple(3, function()
-                        flr:setHighlighted(false)
-                    end)
-                end
-            end
+            break
         end
     end
+    DeathSwap.data = {}
 end
 
 function DeathSwap.doAnnounce(pl)
-    local intro = getText(IGUI_deathswap_start) or "Death Swap will soon begin in"
-    pl:addLineChatElement(tostring(intro))
+    pl = pl or getPlayer()
+    local intro = getText("IGUI_deathswap_start") or "Death Swap will soon begin in"
+    pl:addLineChatElement(intro)
+
     timer:Simple(2, function()
         local cd = SandboxVars.DeathSwap.Countdown or 10
-        local i = cd
-        timer:Create("DeathSwapCountdown", 1, tonumber(cd), function()
+        timer:Create("DeathSwapCountdown", 1, cd, function()
             local str = timer:RepsLeft("DeathSwapCountdown")
+            pl:addLineChatElement(str)
 
-            pl:addLineChatElement(tostring(str))
-
+            if str == "1" then
+                local user = pl:getUsername()
+                DeathSwap.triggerDeathSwap(user)
+            end
         end)
     end)
 end
 
+Commands.DeathSwap.doDeathSwap = function(args)
+    local pl = getPlayer()
+    local user = pl:getUsername()
 
-
-
-
+    if args.pkt then
+        DeathSwap.data = args.pkt
+        DeathSwap.doAnnounce(pl)
+    end
+end
 
 Events.OnServerCommand.Add(function(module, command, args)
-	if Commands[module] and Commands[module][command] then
-		Commands[module][command](args)
-	end
+    if Commands[module] and Commands[module][command] then
+        Commands[module][command](args)
+    end
 end)
+
+
 
 --[[_____________________________________________________________________________________________________________________________
    ░▒▓██████▓▒░    ░▒▓████████▓▒░    ░▒▓█▓▒░         ░▒▓█▓▒░      ░▒▓██████▓▒░   ░▒▓█▓▒░ ░▒▓█▓▒░  ░▒▓███████▓▒░    ░▒▓█▓▒░  ░▒█▒░

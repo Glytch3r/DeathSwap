@@ -81,7 +81,7 @@ end
 
 Events.OnGameStart.Add(function()
     LuaEventManager.AddEvent("OnChatCmd")
-
+    table.insert(ISChat.allChatStreams, {name = "deathswap", command = "/ds ", tabID = 1})
     local hook = ISChat.logChatCommand
 
     function ISChat:logChatCommand(command)
@@ -98,6 +98,7 @@ Events.OnGameStart.Add(function()
 
     Events.OnChatCmd.Add(DeathSwap.chatCmd)
 end)
+
 
 function DeathSwap.dsHelp()
     print(DeathSwap.cmdDesc)
@@ -154,5 +155,5 @@ end
     "/dsAdd [username]\nAdds username to Blacklist\n\n"..
     "/dsDel [username]\nRemove username from Blacklist\n\n\n"..
     "/ds\nTrigger Default Death Swap (sandbox option)\n\n"..
-    "/ds [0 to 60]\nTriggers Custom Death Swap Countdown.\nUse 0 to instantly swap"
+
     getPlayer():setHaloNote(tostring(helpStr),150,250,150,900) ]]

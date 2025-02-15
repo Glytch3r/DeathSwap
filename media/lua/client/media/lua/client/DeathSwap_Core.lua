@@ -139,7 +139,7 @@ function DeathSwap.doDeathSwap()
 
     local user = pl:getUsername()
     local timestamp = DeathSwap.getTimeStamp()
-
+    local msg = "Death Swap Command: "
     if pl:isAccessLevel("admin") then
         local participantsData = DeathSwap.getParticipantsData()
 
@@ -148,12 +148,12 @@ function DeathSwap.doDeathSwap()
             if shuffledData then
                 DeathSwap.sendDeathSwap(shuffledData)
             end
-            msg = user .. " Triggered Death Swap " .. timestamp
+            msg = msg ..user .. " Triggered Death Swap " .. timestamp
         else
-            msg = user .. " Tried to Trigger Death Swap and failed " .. timestamp
+            msg =  msg .. user .. " Tried to Trigger Death Swap and failed " .. timestamp
         end
     else
-        msg = "Non-admin user " .. user .. " tried to trigger Death Swap and failed " .. timestamp
+        msg = msg .. "Non-admin user " .. user .. " tried to trigger Death Swap and failed " .. timestamp
     end
 
     ISLogSystem.writeLog(pl, msg)

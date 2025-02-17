@@ -11,4 +11,7 @@ IGUI_EN = {
     IGUI_deathswap_save =  "Death Swap Blacklist Updated!",
     IGUI_deathswap_start =  "Death Swap will soon begin",
     IGUI_deathswap_noTP  =  "You are Blacklisted from DeathSwap",
+    IGUI_deathswap_invalid  =  "Invalid username input for",
+
+
 }

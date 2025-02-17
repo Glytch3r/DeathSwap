@@ -32,15 +32,6 @@ function DeathSwap.getBlacklist()
     return SandboxVars.DeathSwap.Blacklist or "Brollow;Admin"
 end
 
-function DeathSwap.parseList()
-    local blacklist = DeathSwap.getBlacklist()
-    local names = {}
-    for name in string.gmatch(blacklist, "[^;]+") do
-        table.insert(names, name)
-    end
-    return names
-end
-
 function DeathSwap.isBlacklisted(user) --/dsCheck username
     if instanceof(user, "IsoPlayer") then
         user = user:getUsername()
@@ -89,3 +80,23 @@ function DeathSwap.saveBlacklist(blacklist)
         sOpt:sendToServer()
     end
 end
+
+function DeathSwap.parseList() --preserves spaces
+    local blacklist = DeathSwap.getBlacklist()
+    local names = {}
+    for name in string.gmatch(blacklist, "([^;]+)") do
+        table.insert(names, name)
+    end
+    return names
+end
+
+-- trims spaces
+--[[ function DeathSwap.parseList()
+    local blacklist = DeathSwap.getBlacklist()
+    local names = {}
+    for name in string.gmatch(blacklist, "[^;]+") do
+        table.insert(names, name)
+    end
+    return names
+end
+ ]]

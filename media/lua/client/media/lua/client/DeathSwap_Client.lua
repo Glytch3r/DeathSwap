@@ -23,8 +23,19 @@ local Commands = {}
 Commands.DeathSwap = {}
 
 DeathSwap.data = {}
+--DeathSwap.exitCar(getPlayer())
 
-function DeathSwap.triggerDeathSwap(user)
+function DeathSwap.exitCar(targ)
+    local car = targ:getVehicle()
+    if not car then return end
+
+    local seat = car:getSeat(targ)
+    car:exit(targ)
+    car:setCharacterPosition(targ, seat, "outside")
+    triggerEvent("OnExitVehicle", targ)
+    car:updateHasExtendOffsetForExitEnd(targ)
+end
+tion DeathSwap.triggerDeathSwap(user)
     if not DeathSwap.data then return end
     local pl = getPlayer()
     user = user or pl:getUsername()
@@ -33,15 +44,29 @@ function DeathSwap.triggerDeathSwap(user)
         pl:addLineChatElement(str)
     else
         for _, p in ipairs(DeathSwap.data) do
+
             if p.username == user then
+
+                local car = pl:getVehicle()
+                if  car then
+                    local seat = car:getSeat(pl)
+                    car:exit(pl)
+                    car:setCharacterPosition(pl, seat, "outside")
+                    triggerEvent("OnExitVehicle", pl)
+                    car:updateHasExtendOffsetForExitEnd(pl)
+                end
+
                 pl:setX(p.x)
                 pl:setY(p.y)
                 pl:setZ(p.z)
                 pl:setLx(p.x)
                 pl:setLy(p.y)
                 pl:setLz(p.z)
+
                 print("DeathSwap: " .. user .. " teleported to X: " .. p.x .. ", Y: " .. p.y .. ", Z: " .. p.z)
+
                 DeathSwap.playSfx(pl)
+
                 break
             end
         end

@@ -35,7 +35,18 @@ ___________________________________________________
 /dsSave              -   Manual Sync (If you edit sandbox option via panel).
 ___________________________________________________
 ]]
+function DeathSwap.getUserFromQuoted(cmd, prefix)
+    return cmd:match('^' .. prefix .. '%s*"(.-)"%s*$')
+end
 
+function DeathSwap.getUserFromSingle(cmd, prefix)
+    return cmd:match('^' .. prefix .. '%s*(%S+)%s*$')
+end
+
+function DeathSwap.getUser(cmd, prefix)
+    local user = DeathSwap.getUserFromQuoted(cmd, prefix) or DeathSwap.getUserFromSingle(cmd, prefix)
+    return user
+end
 
 function DeathSwap.chatCmd(cmd)
     local pl = getPlayer()
@@ -43,28 +54,37 @@ function DeathSwap.chatCmd(cmd)
     if pl:isAccessLevel('admin') or isAdmin() then
 
         if cmd:match("^/dsAdd%s+") then
-            local user = cmd:match("^/dsAdd%s+(%S+)")
-            if user then
+            local user = DeathSwap.getUser(cmd, "/dsAdd")
+            if user and user ~= "" then
                 DeathSwap.addUserBlacklist(user)
                 local str = getText("IGUI_deathswap_add") or "has been added to the blacklist"
-                pl:Say(tostring(user) .. " "..tostring(str))
+                pl:Say(user .. " " .. str)
+            else
+                local msg = getText("IGUI_deathswap_invalid").." ".."/dsAdd"
+                pl:Say(tostring(msg))
             end
 
         elseif cmd:match("^/dsDel%s+") then
-            local user = cmd:match("^/dsDel%s+(%S+)")
-            if user then
+            local user = DeathSwap.getUser(cmd, "/dsDel")
+            if user and user ~= "" then
                 DeathSwap.delUserBlacklist(user)
                 local str = getText("IGUI_deathswap_del") or "has been removed from the blacklist"
-                pl:Say(tostring(user) .. " "..tostring(str))
+                pl:Say(user .. " " .. str)
+            else
+                local msg = getText("IGUI_deathswap_invalid").." ".."/dsDel"
+                pl:Say(tostring(msg))
             end
 
         elseif cmd:match("^/dsCheck%s+") then
-            local user = cmd:match("^/dsCheck%s+(%S+)")
-            if user then
+            local user = DeathSwap.getUser(cmd, "/dsCheck")
+            if user and user ~= "" then
                 local isBlacklisted = DeathSwap.isBlacklisted(user)
                 local str1 = getText("IGUI_deathswap_is") or "is blacklisted"
                 local str2 = getText("IGUI_deathswap_not") or "is not blacklisted"
-                pl:Say(tostring(user) .." ".. (isBlacklisted and tostring(str1) or tostring(str2)))
+                pl:Say(user .. " " .. (isBlacklisted and str1 or str2))
+            else
+                local msg = getText("IGUI_deathswap_invalid").." ".."/dsCheck"
+                pl:Say(tostring(msg))
             end
 
         elseif cmd:match("^/dsClip%s*$") then
@@ -89,9 +109,7 @@ Events.OnGameStart.Add(function()
             if luautils.stringStarts(command, "/ds") then
                 triggerEvent("OnChatCmd", command)
             end
-        end
-
-        if originalLogChatCommand then
+        elseif originalLogChatCommand then
             hook(self, command)
         end
     end
@@ -157,3 +175,49 @@ end
     "/ds\nTrigger Default Death Swap (sandbox option)\n\n"..
 
     getPlayer():setHaloNote(tostring(helpStr),150,250,150,900) ]]
+
+
+
+--[[
+function DeathSwap.chatCmd(cmd)
+    local pl = getPlayer()
+
+    if pl:isAccessLevel('admin') or isAdmin() then
+
+        if cmd:match("^/dsAdd%s+") then
+            local user = cmd:match("^/dsAdd%s+(%S+)")
+            if user then
+                DeathSwap.addUserBlacklist(user)
+                local str = getText("IGUI_deathswap_add") or "has been added to the blacklist"
+                pl:Say(tostring(user) .. " "..tostring(str))
+            end
+
+        elseif cmd:match("^/dsDel%s+") then
+            local user = cmd:match("^/dsDel%s+(%S+)")
+            if user then
+                DeathSwap.delUserBlacklist(user)
+                local str = getText("IGUI_deathswap_del") or "has been removed from the blacklist"
+                pl:Say(tostring(user) .. " "..tostring(str))
+            end
+
+        elseif cmd:match("^/dsCheck%s+") then
+            local user = cmd:match("^/dsCheck%s+(%S+)")
+            if user then
+                local isBlacklisted = DeathSwap.isBlacklisted(user)
+                local str1 = getText("IGUI_deathswap_is") or "is blacklisted"
+                local str2 = getText("IGUI_deathswap_not") or "is not blacklisted"
+                pl:Say(tostring(user) .." ".. (isBlacklisted and tostring(str1) or tostring(str2)))
+            end
+
+        elseif cmd:match("^/dsClip%s*$") then
+            DeathSwap.dsClip()
+        elseif cmd:match("^/dsHelp%s*$") then
+            DeathSwap.dsHelp()
+        elseif cmd:match("^/dsSave%s*$") then
+            DeathSwap.dsSave()
+        elseif cmd:match("^/ds%s*$") then
+            DeathSwap.doDeathSwap()
+        end
+    end
+end
+ ]]

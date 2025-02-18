@@ -35,7 +35,8 @@ function DeathSwap.exitCar(targ)
     triggerEvent("OnExitVehicle", targ)
     car:updateHasExtendOffsetForExitEnd(targ)
 end
-tion DeathSwap.triggerDeathSwap(user)
+
+function DeathSwap.triggerDeathSwap(user)
     if not DeathSwap.data then return end
     local pl = getPlayer()
     user = user or pl:getUsername()
